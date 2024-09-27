@@ -1,0 +1,6 @@
+With sphinx and satpy's dependencies installed documentation can be generated
+by running:
+
+    make html
+
+The generated HTML documentation pages are available in `build/html`.
