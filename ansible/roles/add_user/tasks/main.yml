@@ -1,0 +1,8 @@
+---
+- name: Create a new user for bildabgleich
+  ansible.builtin.user:
+    name: "bildabgleich"
+    shell: "/bin/false"
+    state: present
+    uid: 1004
+  become: yes

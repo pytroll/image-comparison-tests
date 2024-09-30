@@ -1,0 +1,17 @@
+---
+- name: Copy Systemd service file to the server
+  ansible.builtin.copy:
+    src: "{{ host_path }}/pytroll-image-comparison-tests/ansible/files/systemd/bildabgleich.service"
+    dest: /etc/systemd/system/bildabgleich.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload Systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Restart the image comparison server
+  ansible.builtin.systemd:
+    name: bildabgleich
+    state: restarted

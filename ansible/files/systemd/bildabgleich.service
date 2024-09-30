@@ -1,0 +1,19 @@
+[Unit]
+Description=bildabgleich-server
+After=network.target
+
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+User=bildabgleich
+WorkingDirectory=/home/bildabgleich/pytroll-image-comparison-tests/serverLogic
+ExecStart=/home/bildabgleich/pytroll-image-comparison-tests/serverLogic/start_server.sh
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutStopSec=5
+
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host;
+
+    if ($host != "pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host") {
+        return 444;
+    }
+
+    ssl_certificate /etc/letsencrypt/live/pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+    }
+}

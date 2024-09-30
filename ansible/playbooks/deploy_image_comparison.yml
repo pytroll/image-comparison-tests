@@ -1,0 +1,21 @@
+---
+- hosts: nodes
+  become: yes
+  roles:
+    - role: add_user
+    - role: install_dependencies
+    - role: certbot_nginx
+      vars:
+        domain_name: pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host
+    - role: deploy_data 
+    - role: configure_nginx
+    - role: manage_services
+
+  tasks:
+    - name: Add Cronjob to clean up old (60 days) test result files and directories
+      ansible.builtin.cron:
+        name: "Cleanup old test result files and directories"
+        minute: "0"
+        hour: "2"
+        user: bildabgleich
+        job: 'find /home/bildabgleich/pytroll-image-comparison-tests/data/test_results -type f -mtime +60 -delete && find /home/bildabgleich/pytroll-image-comparison-tests/data/test_results -type d -empty -delete'
