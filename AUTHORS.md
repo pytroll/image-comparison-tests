@@ -12,3 +12,4 @@ Since delivery, the following people have made contributions to this project:
 <!--- See https://gist.github.com/djhoese/52220272ec73b12eb8f4a29709be110d for auto-generating parts of this list --->
 
 - [Gerrit Holl (gerritholl)](https://github.com/gerritholl) - Deutscher Wetterdienst
+- [Martin Raspaud (mraspaud)](https://github.com/mraspaud) - Swedish Meteorological and Hydrological Institute
