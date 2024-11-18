@@ -65,6 +65,9 @@ def clone_and_test_pull_request(repo_full_name, pull_number, clone_url, branch_n
 
 
         # Run all commands in a single docker run invocation
+        uid = os.getuid()
+        gid = os.getgid()
+
         full_cmd = (
             f"touch {app_log_file} && "
             f"apt-get update >> {app_log_file} 2>&1 && "
@@ -74,7 +77,7 @@ def clone_and_test_pull_request(repo_full_name, pull_number, clone_url, branch_n
             f"git clone {auth_clone_url} --branch {branch_name} {repo_dir} >> {app_log_file} 2>&1 && "
             f"source /app/venv/bin/activate && pip install -e {repo_dir} >> {app_log_file} 2>&1 && "
             f"source /app/venv/bin/activate && cd {repo_dir}{BEHAVE_DIR} && behave >> {app_log_file} 2>&1 || true && "
-            f"chown -R 1004:1004 /app >> {app_log_file} 2>&1" #1004 is the user id of bildabgleich since else the file system belongs to root, causing issues
+            f"chown -R {uid}:{gid} /app >> {app_log_file} 2>&1"
         )
 
         subprocess.check_call([

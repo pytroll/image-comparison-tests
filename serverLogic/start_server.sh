@@ -3,7 +3,7 @@
 set -e
 
 # define paths and variables
-PROJECT_DIR="/home/bildabgleich/pytroll-image-comparison-tests/serverLogic"
+PROJECT_DIR="$HOME/pytroll-image-comparison-tests/serverLogic"
 cd $PROJECT_DIR
 
 # check if debug mode is activated

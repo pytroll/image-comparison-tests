@@ -25,6 +25,3 @@ composite = 'ash'
 scn.load([composite])
 with ProgressBar():
     scn.save_datasets(writer='simple_image', filename=f'./features/data/reference/reference_image_{satellite}_{composite}.png')
-
-
-

@@ -52,12 +52,12 @@
 
 - name: Add user to docker group
   user:
-    name: "{{ ansible_user }}"
+    name: "{{ comparison_user }}"
     groups: docker
     append: yes
   become: yes
 
-- name: Install packages used for bildabgleich service
+- name: Install packages used for image-comparison service
   pip:
     name:
       - fastapi
@@ -66,14 +66,14 @@
       - werkzeug
       - python-dotenv
       - gunicorn
-      - docker  # Installiert das Docker-Python-Modul, um Docker über Python zu steuern
-    virtualenv: /home/bildabgleich/venv/
+      - docker
+    virtualenv: /home/{{ comparison_user }}/venv/
   become: yes
 
-- name: Change permissions of /home/bildabgleich/venv directory
+- name: Change permissions of /home/{{ comparison_user }}/venv directory
   ansible.builtin.file:
-    path: /home/bildabgleich/venv
+    path: /home/{{ comparison_user }}/venv
     recurse: yes
-    owner: bildabgleich
-    group: bildabgleich
+    owner: "{{ comparison_user }}"
+    group: "{{ comparison_user }}"
   become: yes

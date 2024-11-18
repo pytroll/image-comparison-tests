@@ -1,8 +1,8 @@
 ---
-- name: Create a new user for bildabgleich
+- name: Create a new user for image comparison tasks
   ansible.builtin.user:
-    name: "bildabgleich"
+    name: "{{ comparison_user }}"
     shell: "/bin/false"
     state: present
-    uid: 1004
+    # uid: 1004
   become: yes

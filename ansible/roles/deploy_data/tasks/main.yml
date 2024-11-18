@@ -1,31 +1,32 @@
 ---
 - name: Copy serverLogic directory to the server
   ansible.builtin.copy:
-    src: "{{ host_path }}/pytroll-image-comparison-tests/serverLogic/"
-    dest: /home/bildabgleich/pytroll-image-comparison-tests/serverLogic/
-    owner: bildabgleich
-    group: bildabgleich
+    src: "{{ host_path }}/image-comparison-tests-dev/serverLogic/"
+    # src: "../serverLogic/"
+    dest: /home/{{ comparison_user }}/pytroll-image-comparison-tests/serverLogic/
+    owner: "{{ comparison_user }}"
+    group: "{{ comparison_user }}"
     mode: '0775'
 
 - name: Convert Windows line endings to Unix line endings
   ansible.builtin.replace:
-    path: /home/bildabgleich/pytroll-image-comparison-tests/serverLogic/start_server.sh
+    path: /home/{{ comparison_user }}/pytroll-image-comparison-tests/serverLogic/start_server.sh
     regexp: '\r'
     replace: ''
   become: yes
 
 - name: Copy data directory to the server
   ansible.builtin.copy:
-    src: "{{ host_path }}pytroll-image-comparison-tests/data/"
-    dest: /home/bildabgleich/pytroll-image-comparison-tests/data/
-    owner: bildabgleich
-    group: bildabgleich
+    src: "{{ host_path }}/image-comparison-tests-dev/data/"
+    dest: /home/{{ comparison_user }}/pytroll-image-comparison-tests/data/
+    owner: "{{ comparison_user }}"
+    group: "{{ comparison_user }}"
     mode: '0775'
 
 - name: Set permissions
   ansible.builtin.file:
-    path: /home/bildabgleich/
-    owner: bildabgleich
-    group: bildabgleich
+    path: /home/{{ comparison_user }}/
+    owner: "{{ comparison_user }}"
+    group: "{{ comparison_user }}"
     mode: '0775'
     recurse: yes

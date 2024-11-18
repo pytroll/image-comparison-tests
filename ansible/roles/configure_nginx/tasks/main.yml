@@ -1,8 +1,8 @@
 ---
 - name: Copy Nginx configuration
-  ansible.builtin.copy:
-    src: "{{ host_path }}/pytroll-image-comparison-tests/ansible/templates/nginx/sites-available/bildabgleich"
-    dest: /etc/nginx/sites-available/bildabgleich
+  ansible.builtin.template:
+    src: nginx/sites-available/image-comparison
+    dest: /etc/nginx/sites-available/image-comparison
     owner: root
     group: root
     mode: '0644'
@@ -10,8 +10,8 @@
 
 - name: Enable the Nginx site
   ansible.builtin.file:
-    src: /etc/nginx/sites-available/bildabgleich
-    dest: /etc/nginx/sites-enabled/bildabgleich
+    src: /etc/nginx/sites-available/image-comparison
+    dest: /etc/nginx/sites-enabled/image-comparison
     state: link
   notify: reload nginx
 
