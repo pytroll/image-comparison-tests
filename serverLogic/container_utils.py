@@ -6,7 +6,7 @@ from api_utils import post_github_comment
 from config import Config
 
 
-# Logger konfigurieren
+# configure the logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 HOST_URL = Config.HOST_URL
@@ -15,37 +15,37 @@ BEHAVE_DIR = Config.BEHAVE_DIR
 def remove_existing_container(container_name):
     try:
         subprocess.check_call(['docker', 'rm', '-f', container_name])
-        print(f"Bestehender Container {container_name} erfolgreich entfernt.")
+        print(f"Existing Container {container_name} removed successfully.")
     except subprocess.CalledProcessError:
-        print(f"Kein bestehender Container mit dem Namen {container_name} gefunden.")
+        print(f"No existing Container with name {container_name} found.")
 
 def clear_directory(directory):
     try:
         if os.path.exists(directory):
             shutil.rmtree(directory)
-            print(f"Verzeichnis {directory} erfolgreich geleert.")
+            print(f"Directory {directory} successfully emptied.")
         os.makedirs(directory)
-        print(f"Verzeichnis {directory} wurde neu erstellt.")
+        print(f"Directory {directory} newly created.")
     except Exception as e:
-        print(f"Fehler beim Leeren des Verzeichnisses {directory}: {str(e)}")
+        print(f"Error when emptying directory {directory}: {str(e)}")
 
 
 def check_container(name):
     """Check if a Docker container is running."""
     try:
-        # Überprüfen, ob der Container läuft
+        # Check if the Container is running
         result = subprocess.check_output(['docker', 'ps', '--filter', f'name={name}', '--filter', 'status=running', '--format', '{{.Names}}'])
-        # Überprüfen, ob der Container in der Ausgabe enthalten ist
+        # Check if the Container is included in the output
         if name in result.decode('utf-8').strip():
             return True
         else:
             return False
     except subprocess.CalledProcessError:
-        # Wenn ein Fehler auftritt, nehmen wir an, dass der Container nicht läuft
+        # If an error occurs, we assume that the Container is not running
         return False
 
 def mask_sensitive_data(output, sensitive_data):
-    """Ersetzt sensible Daten durch Platzhalter."""
+    """Replaces sensitive data by wildcard."""
     return output.replace(sensitive_data, "[REDACTED]")
 
 def clone_and_test_pull_request(repo_full_name, pull_number, clone_url, branch_name, clone_dir, ext_data_dir, user, github_token):

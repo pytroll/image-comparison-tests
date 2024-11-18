@@ -15,7 +15,7 @@ from secret import GITHUB_TOKEN, WEBHOOK_SECRET
 
 container_lock = threading.Lock()
 
-# Logger konfigurieren
+# configure the logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -34,8 +34,8 @@ def create_app():
     def github_webhook():
         try:
             if not request.is_json:
-                logger.error("Anfrage enthält kein JSON.")
-                return jsonify({'error': 'Anfrage enthält kein JSON'}), 400
+                logger.error("Request does not contain JSON.")
+                return jsonify({'error': 'Request does not contain JSON'}), 400
 
             data = request.get_json()  # JSON-Body der Anfrage abrufen
             headers = dict(request.headers)  # Header der Anfrage abrufen
@@ -116,20 +116,20 @@ def create_app():
 
     @app.route('/<timestamp>', methods=['GET'])
     def display_test_results(timestamp):
-        # Validierung des timestamp
+        # Validating of the timestamp
         validate_timestamp_path_component(timestamp)
 
         test_dir = os.path.join(TEST_RESULTS_BASE_PATH, 'image_comparison', timestamp)
 
         if not os.path.exists(test_dir):
-            return "Keine Testergebnisse gefunden.", 404
+            return "No test results found.", 404
 
         results_file = os.path.join(test_dir, 'test_results.txt')
         try:
             with open(results_file, 'r') as file:
                 results = file.read()
         except FileNotFoundError:
-            results = "Keine Testergebnisse gefunden."
+            results = "No test results found."
 
         # Find all difference images in the directory
         diff_image_paths = sorted(glob(os.path.join(test_dir, 'difference', 'diff_*.png')), key=os.path.getmtime, reverse=True)
@@ -157,7 +157,7 @@ def create_app():
         test_results_dirs = sorted(glob(os.path.join(TEST_RESULTS_BASE_PATH, 'image_comparison', '*/')), key=os.path.getmtime, reverse=True)
 
         if not test_results_dirs:
-            return "Keine Testergebnisse gefunden.", 404
+            return "No test results found.", 404
 
         latest_test_dir = test_results_dirs[0]
 
@@ -183,13 +183,13 @@ def create_app():
     @app.route('/test_results/', defaults={'path': ''})
     @app.route('/test_results/<path:path>')
     def serve_test_results(path):
-        # Validierung des Pfads
+        # Validating of the path
         validate_safe_path(path)
 
         base_dir = TEST_RESULTS_BASE_PATH
         full_path = os.path.normpath(os.path.join(base_dir, path))
 
-        # Sicherstellen, dass der resultierende Pfad innerhalb von base_dir liegt
+        # Make sure the resulting path lies within base_dir
         if not full_path.startswith(base_dir):
             abort(403)
 
@@ -211,10 +211,10 @@ if __name__ == '__main__':
     app = create_app()
 
     if DEBUG:
-        # Starten im Entwicklungsmodus
+        # start in developer mode
         app.run(debug=True, use_reloader=True, port=8080, host='0.0.0.0')
     else:
-        # Starten im Produktionsmodus
+        # start in production mode
         from gunicorn.app.base import BaseApplication
 
         class GunicornApp(BaseApplication):

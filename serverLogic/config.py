@@ -1,8 +1,8 @@
 import os
 
 class Config:
-    DEBUG = False  # Setze auf False für die Produktionsumgebung, True für Debugging
-    USER_NAME = os.getenv('USER_NAME', 'bildabgleich') # bildabgleich für EWC, ubuntu für Spielwiese
+    DEBUG = False  # set to False for production environment, True for debugging
+    USER_NAME = os.getenv('USER_NAME', 'bildabgleich') # bildabgleich for EWC, ubuntu for Spielwiese
     CLONE_DIR_BASE = os.getenv('CLONE_DIR_BASE', f'/home/{USER_NAME}')
     PROJECT_PATH = os.getenv('PROJECT_PATH', f'{CLONE_DIR_BASE}/pytroll-image-comparison-tests')
     TEST_RESULTS_BASE_PATH = os.getenv('TEST_RESULTS_BASE_PATH', f'{PROJECT_PATH}/data/test_results')

@@ -7,7 +7,7 @@ from werkzeug.exceptions import BadRequest, Forbidden
 import logging
 import re
 
-# Logger konfigurieren
+# Configure the logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -39,21 +39,22 @@ def verify_signature(payload_body, secret_token, signature_header):
 def extract_pull_request_info(data):
     """Extract necessary information from the pull request payload."""
     repo_full_name = data['repository']['full_name']
-    clone_url = data['repository']['clone_url']  # Verwende die SSH-URL
+    clone_url = data['repository']['clone_url']  # Use the SSH-URL
     branch_name = data['pull_request']['head']['ref']
     pull_number = data['pull_request']['number']
     return repo_full_name, clone_url, branch_name, pull_number
 
 def validate_safe_path(path):
-    # Verhindere, dass '..' im Pfad vorkommt, um Directory Traversal zu vermeiden
+    # Prevent that '..' occurs in the path, to avoid Directory Traversal
     if '..' in path or path.startswith('/'):
         raise BadRequest("Invalid path format.")
 
-    # Optionale zusätzliche Überprüfung: Sicherstellen, dass der Pfad keine gefährlichen Zeichen enthält
+    # Optional additional check: make sure that the path contains no dangerous
+    # characters
     if not re.match(r'^[a-zA-Z0-9_\-/.]+$', path):
         raise BadRequest("Invalid path format.")
 
 def validate_timestamp_path_component(component):
-    # RegEx für das Format XXXX-XX-XX-XX-XX-XX
+    # RegEx for the Format XXXX-XX-XX-XX-XX-XX
     if not re.match(r'^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}$', component):
         raise BadRequest(f"Invalid timestamp format: {component}")

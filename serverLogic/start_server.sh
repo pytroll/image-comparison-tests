@@ -1,12 +1,12 @@
 #!/bin/bash
-# Funktion zum Beenden des Skripts bei Fehlern
+# function te end the script in case of errors
 set -e
 
-# Pfade und Variablen definieren
+# define paths and variables
 PROJECT_DIR="/home/bildabgleich/pytroll-image-comparison-tests/serverLogic"
 cd $PROJECT_DIR
 
-# Überprüfen, ob Debug-Modus aktiviert ist
+# check if debug mode is activated
 IS_DEBUG=$(python3 -c "from config import Config; print(Config.DEBUG)")
 BASE_PATH=$(python3 -c "from config import Config; print(Config.CLONE_DIR_BASE)")
 
@@ -23,5 +23,5 @@ else
                      --error-logfile /var/log/gunicorn/error.log"
 fi
 
-# Skript enden lassen
+# end the script
 set +e
