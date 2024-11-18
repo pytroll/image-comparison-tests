@@ -22,7 +22,7 @@ Ansible is used to automate the deployment and configuration of the server. The 
     <td>
       <ol>
         <li><strong>Deployment</strong>: Clone this GitHub Repository to your local device. After making some configurations as specified below, execute the Ansible playbook to deploy the code to the EWC server.</li>
-        <li><strong>Flask server with NGINX reverse proxy</strong>: Once the secrets are correctly configured, the systemd `bildabgleich.service` will start. This executes `start_server.sh` to start the Flask server. The NGINX server reroutes SSL requests from port 443 to the Flask server operating on port 8080.</li>
+        <li><strong>Flask server with NGINX reverse proxy</strong>: Once the secrets are correctly configured, the systemd `image-comparison.service` will start. This executes `start_server.sh` to start the Flask server. The NGINX server reroutes SSL requests from port 443 to the Flask server operating on port 8080.</li>
         <li><strong>Webhook triggered</strong>: When a pull request (PR) code review comment is made, a GitHub webhook is triggered. This webhook needs to be configured in the Satpy repository.</li>
         <li><strong>Webhook received</strong>: The webhook is received by the server, and if the webhook is valid, further actions are taken. The webhook is valid if it is made by a member or owner of the Pytroll organisation and includes the phrase `start behave test`. The server will then relay a comment that the testing process has started to inform the initiator.</li>
         <li><strong>Docker Container</strong>: A Docker container is initiated to ensure a clean and secure environment for testing. The container installs necessary packages. </li>
@@ -38,18 +38,22 @@ Ansible is used to automate the deployment and configuration of the server. The 
 
 These steps are not necessary for changing the behave tests but only for changes to the server code. Else, the server should be installed and running already. The behave tests should be changed in the Satpy repository itself.
 - Install ansible
-- Install the certbot-nginx role: `ansible-galaxy role install coopdevs.certbot_nginx,v0.3.1`
 - Clone this repository to your local computer. Since Ansible is a Unix-based system, if it is in a Windows file system, that might cause issues. Therefore, put it in the mounted [WSL](https://learn.microsoft.com/en-us/windows/wsl/) file system and execute the commands using the linux shell.
+- Install the certbot-nginx role: `ansible-galaxy role install coopdevs.certbot_nginx,v0.3.1` within the directory `ansible/roles`.
 - The satellite data required to run the behave tests is not included in this repository, since they are huge files. In the current state of behave tests, GOES16 and GOES17 data is used which may change if behave tests are extended. Place the required data on your local computer in `pytroll-image-comparison-tests/data/satellite_data`. This will be copied to the server by Ansible.
-- You need access to a user with sudo privileges to the server listed in the `ansible\inventory.ini`. Right now, this is `pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host`. To check whether you have access, you can test by using `ssh youruser@pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host`
-- Change the `host_path` variable in the `inventory.ini` to the path you have the repository in. For example, if the repository is `/home/your_user/pytroll-image-comparison-tests/` then make sure `host_path=/home/your_user`.
+- You need access to a user with sudo privileges to the server listed in the `ansible/inventory.ini`. Right now, this is `image-test.int-pytroll-development.s.ewcloud.host`. To check whether you have access, you can test by using `ssh youruser@image-test.int-pytroll-development.s.ewcloud.host`
+- Change the `host_path` variable in the `inventory.yml` to the path you have the repository in. For example, if the repository is `/home/your_user/pytroll-image-comparison-tests/` then make sure `host_path: /home/your_user`.
 - In linux shell, navigate to `pytroll-image-comparison-tests/ansible`. Then you may execute
-`ansible-playbook -playbooks/deploy_image_comparison.yml --ask-become-pass --ask-pass`.
+`ansible-playbook playbooks/deploy_image_comparison.yml --ask-become-pass --ask-pass`.
 - Before the server can start, a file `/home/<comparison-user>/pytroll-image-comparison-tests/serverLogic/secret.py` must exist, in which the Webhook-Secret and Github-Token are stored in the following format:
 ```
 WEBHOOK_SECRET = "xxx"
 GITHUB_TOKEN = "ghp_xxx"
 ```
+
+The webhook secret is used for GitHub to contact the server.
+The GitHub token is used for the server to post GitHub comments.
+
 ## Github Configuration
 
 ### Webhook Configuration
@@ -78,7 +82,7 @@ Ansible is an open-source automation tool used for configuration management, app
 
 ### Playbooks
 
-- **playbooks/deploy_image_comparison.yml**: This playbook automates the deployment of the image comparison service. It runs the roles explained below. It also schedules a cron job to clean up old test result files. This is currently set to delete 60 days old test result data and empty directories in the test_results folder daily at 2AM.
+- **playbooks/deploy_image_comparison.yml**: This playbook automates the deployment of the image comparison service. It runs the roles explained below. It also schedules a cron job to clean up old test result files. This is currently set to delete 60 days old test result data and empty directories in the `test_results` folder daily at 2AM.
 
 
 ### Roles
@@ -93,23 +97,23 @@ Ansible is an open-source automation tool used for configuration management, app
 ### Other relevant files
 
 - **ansible/templates/systemd/image-comparison.service**: This is the systemd service file for managing the image comparison server. It specifies that the service should run under the comparison user and defines the working directory and the script to start the server (`start_server.sh`). The service is configured to restart on failure with a 10-second delay and is limited to 5 restarts within a 300-second interval. The service will be automatically started after the network is available and will be enabled to run at system boot.
-- **templates/nginx/sites-available/image-comparison**: The `templates` directory contains Jinja2 templates that are used for configuring services like Nginx. This Nginx configuration template sets up the web server to route traffic for the image comparison service, ensuring secure connections using SSL certificates from Let's Encrypt.
+- **ansible/templates/nginx/sites-available/image-comparison**: The `templates` directory contains Jinja2 templates that are used for configuring services like Nginx. This Nginx configuration template sets up the web server to route traffic for the image comparison service, ensuring secure connections using SSL certificates from Let's Encrypt.
 - **ansible.cfg**: This is the central configuration file for Ansible, specifying options like paths, SSH settings, and default values. In this case, it specifies that the roles are stored in the `roles/` directory and the inventory file is `inventory.ini`.
-- **inventory.ini**: Defines the target hosts for Ansible. Here, it points to the domain `pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host`, which represents the system where the playbooks will be executed. This is also the URL that serves the test result website.
+- **inventory.yml**: Defines the target hosts for Ansible. Here, it points to the domain `image-test.int-pytroll-development.s.ewcloud.host`, which represents the system where the playbooks will be executed. This is also the URL that serves the test result website.
 
 ## ServerLogic
 
 This directory contains all the code needed to automate the PR testing.
 
 ### `start_server.sh`
-A shell script to start the Flask server or Gunicorn in either development or production mode. This is the script ansible executes as bildabgleich.service
+A shell script to start the Flask server or Gunicorn in either development or production mode. This is the script ansible executes as image-comparison.service
 - **WEBHOOK_SECRET and GITHUB_TOKEN**: These are decrypted from an encrypted file (`secret.env.enc`), and passed to the Flask or Gunicorn server.
 - **IS_DEBUG**: Determines whether to start the Flask server in development mode or use Gunicorn in production mode.
 
 ### `config.py`
 Holds configuration settings for the application, which are loaded from environment variables. Mostly, this is meant to make the paths adjustable if necessary. Exceptions are the following variables:
 - **DEBUG**: Determines whether the application is running in debug mode. If an error occurs, changing `DEBUG` to `True` may help.
-- **HOST_URL**: The URL where the server is hosted. This should be `https://pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host`.
+- **HOST_URL**: The URL where the server is hosted. This should be `https://image-test.int-pytroll-development.s.ewcloud.host`.
 
 ### `server.py`
 The main Flask server file that processes incoming GitHub webhooks, runs tests, and serves a web interface for viewing test results. The webhook_secret and github_token need to be given as arguments for the server to start correctly. However, this is automatically done by the `start_server.sh` script.
@@ -139,8 +143,8 @@ This file contains the utility functions concerning the setup, execution, and te
 ### Other relevant files
 
 - **serverLogic/static/styles.css**: Stylesheet for the webpage.
-- **serverLogic/templates/***: HTML files for each webpage, used in `server.py`
-- **serverLogic/secret.py: File containing the `GITHUB_TOKEN` and `WEBHOOK_SECRET`. Needs to be set up manually and must not be pushed to a remote repository.
+- **serverLogic/templates/**: HTML files for each webpage, used in `server.py`
+- **serverLogic/secret.py**: File containing the `GITHUB_TOKEN` and `WEBHOOK_SECRET`. Needs to be set up manually and must not be pushed to a remote repository.
 
 ## Behave
 
@@ -156,7 +160,6 @@ The Behave feature file that defines the tests for comparing satellite images. I
 
 ### `image_comparison.py`
 
-steps/image_comparison.py
 The step definitions for the Behave tests. It includes steps to:
 
     - Load the reference and generated images.
@@ -164,7 +167,7 @@ The step definitions for the Behave tests. It includes steps to:
     - Save and report the differences between the reference and generated images.
     - Log the results of each test in the test_results folder with detailed output on pixel differences. This folder is hosted by the website.
 
-Here, you can adjust the pixel threshold (how much difference is allowed before failing the test). In case you wish develop and debug the behave tests themselves, you may wish to generate a corrupted reference image and save it to the reference_different directory. Then change the context for imageA from reference_image to reference_different_image.
+Here, you can adjust the pixel threshold (how much difference is allowed before failing the test). In case you wish develop and debug the behave tests themselves, you may wish to generate a corrupted reference image and save it to the `reference_different` directory. Then change the context for imageA from `reference_image` to `reference_different_image`.
 
 ### `create_reference.py`
 
@@ -180,15 +183,15 @@ This section provides a few commands to help with debugging the application. For
 
 ### Docker:
 - check the output file of the last PR testing attempt in the directory Docker creates to clone and test the PR
-- e.g. `cat /home/bildabgleich/pull_request_pull_branch/output.log`
+- e.g. `cat /home/imagetester/pull_request_pull_branch/output.log`
 - scroll down to see why it failed
 - run `sudo journalctl -u docker.service` for Docker related logs
 
 ### Systemd service:
 - if the service is not running, the website will give a 502 error
-- check server status `sudo systemctl status bildabgleich.service`
-- get more information `journalctl -u bildabgleich.service -f`
-- try `sudo systemctl restart bildabgleich.service`
+- check server status `sudo systemctl status image-comparison.service`
+- get more information `journalctl -u image-comparison.service -f`
+- try `sudo systemctl restart image-comparison.service`
 
 ### Gunicorn:
 - Gunicorn is used to host the server in production mode (Debug=False in config.py)
@@ -199,10 +202,10 @@ This section provides a few commands to help with debugging the application. For
 ### Nginx:
 - check for errors `sudo cat /var/log/nginx/error.log`
 - check the access history at `sudo cat /var/log/nginx/access.log`
-- make changes using `sudo nano /etc/nginx/sites-available/bildabgleich` (also change this in `ansible\templates\nginx\sites-available\bildabgleich` once you are satisfied with the new configuration)
+- make changes using `sudo nano /etc/nginx/sites-available/image-comparison` (also change this in `ansible/templates/nginx/sites-available/image-comparison` once you are satisfied with the new configuration)
 - update the configuration using `sudo systemctl reload nginx`
 
 ### Certificate:
 - check the status of the certbot certificate using `sudo certbot certificates`
-- renew the certificate manually using `sudo certbot --nginx -d pytroll-image-test-dev.int-pytroll-development.s.ewcloud.host --debug`
+- renew the certificate manually using `sudo certbot --nginx -d image-test.int-pytroll-development.s.ewcloud.host --debug`
 - check logs `sudo cat /var/log/letsencrypt/letsencrypt.log`
