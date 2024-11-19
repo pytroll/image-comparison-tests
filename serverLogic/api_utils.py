@@ -58,3 +58,11 @@ def validate_timestamp_path_component(component):
     # RegEx for the Format XXXX-XX-XX-XX-XX-XX
     if not re.match(r'^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}$', component):
         raise BadRequest(f"Invalid timestamp format: {component}")
+
+def validate_user(org, user, github_token):
+    """True if we can confirm that user is a member of org."""
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"token {github_token:s}"}
+    url = f"https://api.github.com/orgs/{org:s}/members/{user:s}"
+    return bool(requests.get(url, headers=headers))

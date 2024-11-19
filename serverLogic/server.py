@@ -3,7 +3,7 @@ import os
 from glob import glob
 from flask import Flask, request, jsonify, render_template, send_from_directory, abort
 import json
-from api_utils import verify_signature, extract_pull_request_info, post_github_comment, validate_timestamp_path_component, validate_safe_path
+from api_utils import verify_signature, extract_pull_request_info, post_github_comment, validate_timestamp_path_component, validate_safe_path, validate_user
 from container_utils import clone_and_test_pull_request, check_container
 from werkzeug.exceptions import HTTPException
 from config import Config
@@ -61,7 +61,8 @@ def create_app():
                 'review' in data and
                 'body' in data['review'] and
                 data['review']['body'].strip().lower() == 'start behave test' and
-                'pull_request' in data
+                'pull_request' in data and
+                validate_user("pytroll", data["sender"]["login"], GITHUB_TOKEN)
             ):
                 repo_full_name, clone_url, branch_name, pull_number = extract_pull_request_info(data)
 
