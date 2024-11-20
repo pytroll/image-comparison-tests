@@ -39,7 +39,7 @@ def verify_signature(payload_body, secret_token, signature_header):
 def extract_pull_request_info(data):
     """Extract necessary information from the pull request payload."""
     repo_full_name = data['repository']['full_name']
-    clone_url = data['repository']['clone_url']  # Use the SSH-URL
+    clone_url = data["pull_request"]["head"]["repo"]["clone_url"]
     branch_name = data['pull_request']['head']['ref']
     pull_number = data['pull_request']['number']
     return repo_full_name, clone_url, branch_name, pull_number
