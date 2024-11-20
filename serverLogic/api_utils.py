@@ -59,10 +59,21 @@ def validate_timestamp_path_component(component):
     if not re.match(r'^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}$', component):
         raise BadRequest(f"Invalid timestamp format: {component}")
 
-def validate_user(org, user, github_token):
+def validate_user(data, github_token):
     """True if we can confirm that user is a member of org."""
     headers = {
-        "Accept": "application/vnd.github+json",
+        "Accept": "application/vnd.github.v3+json",
         "Authorization": f"token {github_token:s}"}
+    org = data["organization"]["login"]
+    user = data["sender"]["login"]
     url = f"https://api.github.com/orgs/{org:s}/members/{user:s}"
     return bool(requests.get(url, headers=headers))
+
+def shall_process_event(data, github_token):
+    """True if PR shall be processed."""
+    return (data['action'] == 'submitted' and
+            'review' in data and
+            'body' in data['review'] and
+            data['review']['body'].strip().lower() == 'start behave test' and
+            'pull_request' in data and
+            validate_user(data, github_token))

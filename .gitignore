@@ -46,3 +46,4 @@ node_modules/
 image_diff_tests/
 
 coopdevs.certbot_nginx
+serverLogic/version.py

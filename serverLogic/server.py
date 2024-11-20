@@ -3,7 +3,7 @@ import os
 from glob import glob
 from flask import Flask, request, jsonify, render_template, send_from_directory, abort
 import json
-from api_utils import verify_signature, extract_pull_request_info, post_github_comment, validate_timestamp_path_component, validate_safe_path, validate_user
+from api_utils import verify_signature, extract_pull_request_info, post_github_comment, validate_timestamp_path_component, validate_safe_path, shall_process_event
 from container_utils import clone_and_test_pull_request, check_container
 from werkzeug.exceptions import HTTPException
 from config import Config
@@ -37,8 +37,8 @@ def create_app():
                 logger.error("Request does not contain JSON.")
                 return jsonify({'error': 'Request does not contain JSON'}), 400
 
-            data = request.get_json()  # JSON-Body der Anfrage abrufen
-            headers = dict(request.headers)  # Header der Anfrage abrufen
+            data = request.get_json()
+            headers = dict(request.headers)
 
             # Extract the signature from headers
             signature_header = headers.get('X-Hub-Signature-256')
@@ -56,14 +56,7 @@ def create_app():
                 return jsonify({'message': 'Ping received successfully'}), 200
 
             # Process the pull request event
-            if (
-                data['action'] == 'submitted' and
-                'review' in data and
-                'body' in data['review'] and
-                data['review']['body'].strip().lower() == 'start behave test' and
-                'pull_request' in data and
-                validate_user("pytroll", data["sender"]["login"], GITHUB_TOKEN)
-            ):
+            if shall_process_event(data, GITHUB_TOKEN):
                 repo_full_name, clone_url, branch_name, pull_number = extract_pull_request_info(data)
 
                 def process_pull_request():

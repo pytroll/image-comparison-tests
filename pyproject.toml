@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pytroll-image-comparison-tests"
+dynamic = ["version"]
+description = "automated image comparison system for pytroll"
+authors = [
+    { name = "The Pytroll Team", email = "pytroll@googlegroups.com" }
+]
+dependencies = ["fastapi", "requests", "flask", "werkzeug", "python-dotenv", "gunicorn", "docker"]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {file = "LICENSE"}
+
+[tool.hatch.build.wheel]
+packages = ["serverLogic"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "serverLogic/version.py"
