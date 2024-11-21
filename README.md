@@ -150,6 +150,8 @@ This file contains the utility functions concerning the setup, execution, and te
 
 These are the actual Tests being run on the PR Satpy code. The idea is to create reference images using the current 'gold standard' version of Satpy to create images. These reference images are saved to `behave/features/data/reference/`.
 
+Behave tests are not included in this repository, but are going to be integrated in satpy with [PR 2912](https://github.com/pytroll/satpy/pull/2912).
+
 In this version, the behave tests need to be executed by the Docker container on the EWC server, since the paths are configured for that purpose. For testing purposes, a Satpy developer could change these paths to their local environment and run them manually. The packages needed to run the tests are `behave Pillow pytest numpy opencv-python dask netcdf4 h5netcdf` and their local development version of Satpy (`pip install -e {satpy_dir}`). The paths must not be changed in the PR request however, or else the automatic testing will fail.
 
 By default, the application expects the behave tests to be located in the Satpy repository at `satpy/tests/behave`. You may adjust this path in `serverLogic/config.py`.
@@ -172,10 +174,6 @@ Here, you can adjust the pixel threshold (how much difference is allowed before 
 ### `create_reference.py`
 
 This utility script generates reference images from satellite data using the Satpy library. Be sure to use the current 'gold standard' Satpy and not a development version. These images are stored in the `features/data/reference/` directory. The script is meant to be used manually and only if the reference images need to be changed or extended. Once the reference images are up to date, the script is not needed in production of the automatic behave testing process.
-
-### `modify_image.py`
-
-This utility script is used to modify existing reference images by adding text. These modified images can be used to test the image comparison logic under various scenarios, ensuring that differences are correctly detected. The corrupted images are then saved in the `features/data/reference_different/` directory. It is not needed in production but is meant for development and debugging purposes.
 
 ## Debugging
 
