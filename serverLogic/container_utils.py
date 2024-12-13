@@ -73,7 +73,7 @@ def clone_and_test_pull_request(repo_full_name, pull_number, clone_url, branch_n
             f"apt-get update >> {app_log_file} 2>&1 && "
             f"apt-get install -y git libgl1-mesa-glx libglib2.0-0 python3-venv >> {app_log_file} 2>&1 && "
             f"python3 -m venv /app/venv >> {app_log_file} 2>&1 && "
-            f"/app/venv/bin/pip install behave Pillow pytest numpy opencv-python dask netcdf4 h5netcdf >> {app_log_file} 2>&1 && "
+            f"/app/venv/bin/pip install behave Pillow pytest numpy hdf5plugin opencv-python dask netcdf4 h5netcdf >> {app_log_file} 2>&1 && "
             f"git clone {auth_clone_url} --branch {branch_name} {repo_dir} >> {app_log_file} 2>&1 && "
             f"source /app/venv/bin/activate && pip install -e {repo_dir} >> {app_log_file} 2>&1 && "
             f"source /app/venv/bin/activate && cd {repo_dir}{BEHAVE_DIR} && behave >> {app_log_file} 2>&1 || true && "
