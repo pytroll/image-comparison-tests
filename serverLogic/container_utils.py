@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 HOST_URL = Config.HOST_URL
 BEHAVE_DIR = Config.BEHAVE_DIR
-miniforge_dir = "https://github.com/conda-forge/miniforge/releases/download/"
-miniforge_exec = "24.11.0-0/Miniforge3-24.11.0-0-Linux-x86_64.sh"
+miniforge_dir = "https://github.com/conda-forge/miniforge/releases/download/24.11.0-0/"
+miniforge_exec = "Miniforge3-24.11.0-0-Linux-x86_64.sh"
 miniforge = miniforge_dir + miniforge_exec
 
 def remove_existing_container(container_name):
