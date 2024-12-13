@@ -11,6 +11,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 HOST_URL = Config.HOST_URL
 BEHAVE_DIR = Config.BEHAVE_DIR
+miniforge_dir = "https://github.com/conda-forge/miniforge/releases/download/"
+miniforge_exec = "24.11.0-0/Miniforge3-24.11.0-0-Linux-x86_64.sh"
+miniforge = miniforge_dir + miniforge_exec
 
 def remove_existing_container(container_name):
     try:
@@ -71,12 +74,17 @@ def clone_and_test_pull_request(repo_full_name, pull_number, clone_url, branch_n
         full_cmd = (
             f"touch {app_log_file} && "
             f"apt-get update >> {app_log_file} 2>&1 && "
-            f"apt-get install -y git libgl1-mesa-glx libglib2.0-0 python3-venv >> {app_log_file} 2>&1 && "
-            f"python3 -m venv /app/venv >> {app_log_file} 2>&1 && "
-            f"/app/venv/bin/pip install behave Pillow pytest numpy hdf5plugin opencv-python dask netcdf4 h5netcdf >> {app_log_file} 2>&1 && "
+            f"apt-get install -y wget git >> {app_log_file} 2>&1 && "
+            f"wget -q {miniforge} >> {app_log_file} 2>&1 && "
+            f"bash {miniforge_exec} -b -p /miniforge >> {app_log_file} 2>&1 && "
+            f"source /root/.bashrc >> {app_log_file} 2>&1 && "
+            f"conda activate >> {app_log_file} 2&1 && "
+            f"mamba create -y -n py312 python=3.12 satpy hdf5plugin py-opencv behave >> {app_log_file} 2>&1 && "
+            f"conda activate py312 >> {app_log_file} 2>&1 && "
             f"git clone {auth_clone_url} --branch {branch_name} {repo_dir} >> {app_log_file} 2>&1 && "
-            f"source /app/venv/bin/activate && pip install -e {repo_dir} >> {app_log_file} 2>&1 && "
-            f"source /app/venv/bin/activate && cd {repo_dir}{BEHAVE_DIR} && behave >> {app_log_file} 2>&1 || true && "
+            f"pip install -e {repo_dir} >> {app_log_file} 2>&1 && "
+            f"cd {repo_dir}{BEHAVE_DIR} && apt list >> {{app_log_file}} && "
+            f"behave >> {app_log_file} 2>&1 || true && "
             f"chown -R {uid}:{gid} /app >> {app_log_file} 2>&1"
         )
 
