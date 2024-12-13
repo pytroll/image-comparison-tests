@@ -77,6 +77,7 @@ def clone_and_test_pull_request(repo_full_name, pull_number, clone_url, branch_n
             f"apt-get install -y wget git >> {app_log_file} 2>&1 && "
             f"wget -q {miniforge} >> {app_log_file} 2>&1 && "
             f"bash {miniforge_exec} -b -p /miniforge >> {app_log_file} 2>&1 && "
+            f"/miniforge/bin/conda init >> {app_log_file} 2>&1 && "
             f"source /root/.bashrc >> {app_log_file} 2>&1 && "
             f"conda activate >> {app_log_file} 2>&1 && "
             f"mamba create -y -n py312 python=3.12 satpy hdf5plugin py-opencv behave >> {app_log_file} 2>&1 && "
