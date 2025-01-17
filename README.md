@@ -53,6 +53,9 @@ GITHUB_TOKEN = "ghp_xxx"
 
 The webhook secret is used for GitHub to contact the server.
 The GitHub token is used for the server to post GitHub comments.
+Note that typically, those tokens have a limited expiration time.
+If the bot appears to be on strike, check on GitHub that the access
+tokens for user rymdulf are still current.
 
 ## Github Configuration
 
@@ -207,3 +210,6 @@ This section provides a few commands to help with debugging the application. For
 - check the status of the certbot certificate using `sudo certbot certificates`
 - renew the certificate manually using `sudo certbot --nginx -d image-test.int-pytroll-development.s.ewcloud.host --debug`
 - check logs `sudo cat /var/log/letsencrypt/letsencrypt.log`
+
+### Personal access tokens
+- check that the personal access tokens are up-to-date.  Login to GitHub as user rymdulf and browse to https://github.com/settings/tokens .  Gerrit has login credentials.
