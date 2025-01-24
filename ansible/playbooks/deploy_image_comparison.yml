@@ -1,0 +1,22 @@
+---
+- hosts: nodes
+  become: yes
+  roles:
+    - role: add_user
+    - role: install_dependencies
+    - role: "coopdevs.certbot_nginx"
+      vars:
+        domain_names:  # do not use the single domain option, see https://github.com/coopdevs/certbot_nginx/issues/34
+          - "{{ inventory_hostname }}"
+    - role: deploy_data
+    - role: configure_nginx
+    - role: manage_services
+
+  tasks:
+    - name: Add Cronjob to clean up old (60 days) test result files and directories
+      ansible.builtin.cron:
+        name: "Cleanup old test result files and directories"
+        minute: "0"
+        hour: "2"
+        user: "{{ comparison_user }}"
+        job: "find /home/{{ comparison_user }}/pytroll-image-comparison-tests/data/test_results -type f -mtime +60 -delete && find /home/{{ comparison_user }}/pytroll-image-comparison-tests/data/test_results -type d -empty -delete"

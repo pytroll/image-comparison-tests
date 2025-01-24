@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Results - {{ path }}</title>
+</head>
+<body>
+<h1>Directory listing for /test_results/{{ path }}</h1>
+<ul>
+    {% for item in items %}
+    <li><a href="{{ url_for('serve_test_results', path=path + item) }}">{{ item }}</a></li>
+    {% endfor %}
+</ul>
+</body>
+</html>

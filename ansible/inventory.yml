@@ -1,0 +1,6 @@
+nodes:
+  hosts:
+    image-test.int-pytroll-development.s.ewcloud.host:
+      letsencrypt_email: martin.raspaud@smhi.se
+      comparison_user: imagetester
+      host_path: "/home/a001673/usr/src/"

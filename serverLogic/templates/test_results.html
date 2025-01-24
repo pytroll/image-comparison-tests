@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="nav-button">
+            <a href="{{ url_for('more_results') }}" class="button">Back</a>
+        </div>
+        <h1>Test results</h1>
+        <h2>Test: {{ test_dir }}</h2>
+        <pre>{{ results }}</pre>
+        <div class="image-section">
+            <h3>Difference Images</h3>
+            <div class="image-container">
+                {% for image in diff_image_paths %}
+                <div class="image-item">
+                    <a href="{{ image.path }}" target="_blank">
+                        <img src="{{ image.path }}" alt="Difference Image">
+                    </a>
+                    <p>{{ image.name }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="image-section">
+            <h3>Generated Images</h3>
+            <div class="image-container">
+                {% for image in generated_image_paths %}
+                <div class="image-item">
+                    <a href="{{ image.path }}" target="_blank">
+                        <img src="{{ image.path }}" alt="Generated Image">
+                    </a>
+                    <p>{{ image.name }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,8 @@
+---
+- name: Create a new user for image comparison tasks
+  ansible.builtin.user:
+    name: "{{ comparison_user }}"
+    shell: "/bin/false"
+    state: present
+    # uid: 1004
+  become: yes

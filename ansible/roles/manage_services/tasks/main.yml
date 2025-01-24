@@ -1,0 +1,25 @@
+---
+- name: Create the gunicorn log directory
+  ansible.builtin.file:
+    path: /var/log/gunicorn
+    state: directory
+    owner: "{{ comparison_user }}"
+    group: "{{ comparison_user }}"
+    mode: '0755'
+
+- name: Copy Systemd service file to the server
+  ansible.builtin.template:
+    src: systemd/image-comparison.service
+    dest: /etc/systemd/system/image-comparison.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload Systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Restart the image comparison server
+  ansible.builtin.systemd:
+    name: image-comparison
+    state: restarted

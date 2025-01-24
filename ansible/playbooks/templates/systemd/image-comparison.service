@@ -1,0 +1,19 @@
+[Unit]
+Description=image-comparison-server
+After=network.target
+
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+User={{ comparison_user }}
+WorkingDirectory=/home/{{ comparison_user }}/pytroll-image-comparison-tests/serverLogic
+ExecStart=/home/{{ comparison_user }}/pytroll-image-comparison-tests/serverLogic/start_server.sh
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutStopSec=5
+
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
